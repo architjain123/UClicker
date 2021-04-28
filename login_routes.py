@@ -27,7 +27,8 @@ def signup():
     'name': name,
     'email': email,
     'password': passwordHashed,
-    'classes' : []
+    'classes' : [],
+    "admin": "false"
         }
     )
     

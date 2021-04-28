@@ -11,17 +11,10 @@ dynamodb = boto3.resource('dynamodb',
                     aws_secret_access_key=os.getenv('SECRET_KEY'))
 
 
-@post_routes_blueprint.route('/newClass',methods = ['POST'])
+@post_routes_blueprint.route('/new_class',methods = ['POST'])
 def newClassProf():
     email=request.json["email"]
     table = dynamodb.Table('UClickerAccounts')
-    response = table.query(
-            KeyConditionExpression=Key('email').eq(email)
-    )
-    items = response['Items']
-    if(items[0]["admin"] == ""):
-        r={"Error":"Not allowed to add classes"}
-        return 403
     class_name=request.json["class"]
     start_time=request.json["start"]
     end_time=request.json["end"]
@@ -29,12 +22,13 @@ def newClassProf():
     students=request.json["students"]
     print(students)
     response = table.query(
-        KeyConditionExpression=Key('email').eq(email)
+        KeyConditionExpression=Key('email').eq(email)&Key('admin').eq("true")
     )
 
 
     items = response['Items']
-    print(items[0])
+    if(items==[]):
+            return {"error": "No person found"},404
     Classes=items[0]["classes"]
     j={
         "class_name":class_name,
@@ -45,7 +39,8 @@ def newClassProf():
     
     response = table.update_item(
         Key={
-            'email':email
+            'email':email,
+            'admin':"true"
         },
         UpdateExpression="set classes=:a",
         ExpressionAttributeValues={
@@ -56,12 +51,14 @@ def newClassProf():
     )
     for i in students:
         response = table.query(
-            KeyConditionExpression=Key('email').eq(i)
+            KeyConditionExpression=Key('email').eq(i)&Key('admin').eq("false")
         )
 
 
         items = response['Items']
-        print(items[0])
+        if(items==[]):
+            return {"error": "No matching students found"},404
+        print(items)
         Classes=items[0]["classes"]
         j={
         "class_name":class_name,
@@ -73,7 +70,8 @@ def newClassProf():
         
         response = table.update_item(
             Key={
-                'email':i
+                'email':i,
+                'admin':"false"
             },
             UpdateExpression="set classes=:a",
             ExpressionAttributeValues={
@@ -89,13 +87,6 @@ def newClassProf():
 def add_students():
     email=request.json["email"]
     table = dynamodb.Table('UClickerAccounts')
-    response = table.query(
-            KeyConditionExpression=Key('email').eq(email)
-    )
-    items = response['Items']
-    if(items[0]["admin"] == ""):
-        r={"Error":"Not allowed to add classes"}
-        return 403  
     students=request.json["students"]
     start_time=request.json["start"]
     end_time=request.json["end"]
@@ -103,11 +94,14 @@ def add_students():
     attend=0
     for i in students:
         response = table.query(
-            KeyConditionExpression=Key('email').eq(i)
+            KeyConditionExpression=Key('email').eq(i)&Key('admin').eq("false")
+
         )
 
 
         items = response['Items']
+        if(items==[]):
+            return {"error": "No person found"},404
         print(items[0])
         Classes=items[0]["classes"]
         j={
@@ -120,7 +114,8 @@ def add_students():
         
         response = table.update_item(
             Key={
-                'email':i
+                'email':i,
+                'admin':"false"
             },
             UpdateExpression="set classes=:a",
             ExpressionAttributeValues={
@@ -137,9 +132,11 @@ def attendClass():
     class_name = request.json["class"]
     table = dynamodb.Table('UClickerAccounts')
     response = table.query(
-            KeyConditionExpression=Key('email').eq(email)
+            KeyConditionExpression=Key('email').eq(email)&Key('admin').eq('false')
     )
     items = response['Items']
+    if(items==[]):
+        return {"error": "No person found"},404
     classes=items[0]["classes"]
     for i in classes:
         if(i["class_name"]==class_name):
@@ -149,7 +146,8 @@ def attendClass():
 
     response = table.update_item(
             Key={
-                'email':email
+                'email':email,
+                'admin':"false"
             },
             UpdateExpression="set classes=:a",
             ExpressionAttributeValues={
