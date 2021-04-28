@@ -3,11 +3,12 @@ from flask import request
 import boto3
 from boto3.dynamodb.conditions import Key
 import hashlib
+import os
 login_routes_blueprint = Blueprint('login_routes', __name__)
 
 dynamodb = boto3.resource('dynamodb',
-                    aws_access_key_id="AKIA2G4DBYZWKGR4RZVC",
-                    aws_secret_access_key="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")
+                    aws_access_key_id=os.getenv('KEY'),
+                    aws_secret_access_key=os.environ.get('SECRET_KEY'))
 
 
 @login_routes_blueprint.route('/signup',methods = ['POST'])
@@ -29,15 +30,8 @@ def signup():
     'classes' : []
         }
     )
-
-    table = dynamodb.Table('UClicker')
     
-    table.put_item(
-            Item={
-    'uuid': result_uuid.hexdigest()
-            }
-    )
-    return request.json,200
+    return request.json,201
 
 @login_routes_blueprint.route('/admin_signup',methods = ['POST'])
 def admin_signup():
@@ -67,7 +61,7 @@ def admin_signup():
     # 'uuid': result_uuid.hexdigest()
     #         }
     # )
-    return request.json,200
+    return request.json,201
    
     
 
