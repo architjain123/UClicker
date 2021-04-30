@@ -1,15 +1,17 @@
 from flask import Blueprint
 from flask import request
+from flask_cors import CORS, cross_origin
 import simplejson as json
 import boto3
+from utils import KeyManager
 from boto3.dynamodb.conditions import Key
-from boto3.dynamodb.conditions import Attr
-import os
 
 get_routes_blueprint = Blueprint('get_routes', __name__)
-dynamodb = boto3.resource('dynamodb',
-                    aws_access_key_id=os.getenv('KEY'),
-                    aws_secret_access_key=os.environ.get('SECRET_KEY'))
+dynamodb = boto3.resource('dynamodb', region_name='us-west-1',
+                    aws_access_key_id=KeyManager.getInstance().KEY,
+                    aws_secret_access_key=KeyManager.getInstance().SECRETKEY)
+
+@cross_origin()
 @get_routes_blueprint.route('/user',methods = ['POST'])
 def getUser():
     email= request.json["email"]
@@ -25,7 +27,7 @@ def getUser():
     items = response['Items']
     return json.dumps(items[0]),200
 
-
+@cross_origin()
 @get_routes_blueprint.route('/all_students_class',methods = ['POST'])
 def get_all_students_class():
     email=request.json["email"]
@@ -53,15 +55,12 @@ def get_all_students_class():
         return {"error":"Nothing found with that class"},404
     return json.dumps(return_elements)
 
-
+@cross_origin()
 @get_routes_blueprint.route('/all_students',methods = ['GET'])
 def get_all_students():
     
     table = dynamodb.Table('UClickerAccounts')
-
-
     response = table.scan()
- 
     all_elements = response["Items"]
     return_elements = []
     for i in all_elements:
@@ -70,8 +69,3 @@ def get_all_students():
     if(return_elements==[]):
         return {"error":"Nothing found with that class"},404
     return json.dumps(return_elements)
-
-    
-
-
-    

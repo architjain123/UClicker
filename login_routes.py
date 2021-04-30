@@ -2,13 +2,15 @@ from flask import Blueprint
 from flask import request
 import boto3
 from boto3.dynamodb.conditions import Key
+from flask_cors import CORS, cross_origin
 import hashlib
-import os
+from utils import KeyManager
+
 login_routes_blueprint = Blueprint('login_routes', __name__)
 
-dynamodb = boto3.resource('dynamodb',
-                    aws_access_key_id=os.getenv('KEY'),
-                    aws_secret_access_key=os.environ.get('SECRET_KEY'))
+dynamodb = boto3.resource('dynamodb', region_name='us-west-1',
+                    aws_access_key_id=KeyManager.getInstance().KEY,
+                    aws_secret_access_key=KeyManager.getInstance().SECRETKEY)
 
 
 @login_routes_blueprint.route('/signup',methods = ['POST'])
@@ -64,10 +66,6 @@ def admin_signup():
     # )
     return request.json,201
    
-    
-
-
-
 
 @login_routes_blueprint.route('/login',methods = ['POST'])
 def login():
@@ -83,8 +81,10 @@ def login():
     
     if passwordHashed == items[0]['password']:
         email = items[0]['email']
-        admin =items[0]['admin']
-        r= {"status": "Login sucess","email":email,"admin":admin}
+        admin = items[0]['admin']
+        name = items[0]['name']
+        classes = items[0]['classes']
+        r= {"status": "Login sucess","email":email,"admin":admin, "classes":[{"cname": "cs218"}], "name": name}
         return r,200
     r = {"status": "wrong credentials"}
     return r,403
