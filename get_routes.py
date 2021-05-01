@@ -22,7 +22,7 @@ def getUser():
     )
 
     if(response['Items'] == []):
-        r={"error":"not found"}
+        r={"error":"user not found"}
         return r,404
     items = response['Items']
     return json.dumps(items[0]),200

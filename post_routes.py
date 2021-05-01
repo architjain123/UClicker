@@ -20,6 +20,7 @@ def newClassProf():
     class_name=request.json["class"]
     start_time=request.json["start"]
     end_time=request.json["end"]
+    days = request.json["days"]
     attend=0
     students=request.json["students"]
     print(students)
@@ -35,7 +36,8 @@ def newClassProf():
     j={
         "class_name":class_name,
         "start_time":start_time,
-        "end_time":end_time
+        "end_time":end_time,
+        "days": days
     }
     Classes.append(j)
     
@@ -66,7 +68,8 @@ def newClassProf():
         "class_name":class_name,
         "start_time":start_time,
         "end_time":end_time,
-        "attend":attend
+        "attend":attend,
+        "days": days
         }
         Classes.append(j)
         
@@ -93,6 +96,7 @@ def add_students():
     start_time=request.json["start"]
     end_time=request.json["end"]
     class_name=request.json["class"]
+    days = request.json["days"]
     attend=0
     for i in students:
         response = table.query(
@@ -110,7 +114,8 @@ def add_students():
         "class_name":class_name,
         "start_time":start_time,
         "end_time":end_time,
-        "attend":attend
+        "attend":attend,
+        "days":days
         }
         Classes.append(j)
         
