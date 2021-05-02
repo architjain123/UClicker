@@ -69,3 +69,10 @@ def get_all_students():
     if(return_elements==[]):
         return {"error":"Nothing found with that class"},404
     return json.dumps(return_elements)
+
+
+
+@cross_origin()
+@get_routes_blueprint.route('/health_check',methods = ['GET'])
+def health():
+    return {"Health_check": "Im all good for now"},200
