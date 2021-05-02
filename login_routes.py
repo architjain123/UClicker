@@ -31,17 +31,36 @@ def signup():
     uuid = (email+passwordHashed)
     result_uuid = hashlib.md5(uuid.encode())
     table = dynamodb.Table('UClickerAccounts')
+
+    try:
+        response = table.query(
+                KeyConditionExpression=Key('email').eq(email)
+        )
+    except Error as e:
+        print(e)
+        r = {"status":"error occured in querying table"}
+        return r,500
     
-    table.put_item(
-            Item={
-    'uuid': result_uuid.hexdigest(),
-    'name': name,
-    'email': email,
-    'password': passwordHashed,
-    'classes' : [],
-    "admin": "false"
-        }
-    )
+    items = response['Items']
+    if len(items) > 0:
+        r = {"status":"account with this email id already exists"}
+        return r,403
+    
+    try:
+        table.put_item(
+                Item={
+        'uuid': result_uuid.hexdigest(),
+        'name': name,
+        'email': email,
+        'password': passwordHashed,
+        "admin": "false",
+        "classes": []
+            }
+        )
+    except Error as e:
+        print(e)
+        r = {"status": "error occurred in adding user to db"}
+        return r,500
     
     return request.json,201
 
@@ -63,6 +82,20 @@ def admin_signup():
     result_uuid = hashlib.md5(uuid.encode())
     table = dynamodb.Table('UClickerAccounts')
     
+    try:
+        response = table.query(
+                KeyConditionExpression=Key('email').eq(email)
+        )
+    except Error as e:
+        print(e)
+        r = {"status":"error occured in querying table"}
+        return r,500
+    
+    items = response['Items']
+    if len(items) > 0:
+        r = {"status":"account with this email id already exists"}
+        return r,403
+
     try:
         table.put_item(
                 Item={
