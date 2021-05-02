@@ -24,7 +24,7 @@ def signup():
     if(re.search(regex, email)):
         print("Valid Email")
     else:
-        r = {"status": "invalid email id"}
+        r = {"error": "invalid email id"}
         return r,400
 
     passwordHashed= request.json["password"]
@@ -38,12 +38,12 @@ def signup():
         )
     except Error as e:
         print(e)
-        r = {"status":"error occured in querying table"}
+        r = {"error":"error occured in querying table"}
         return r,500
     
     items = response['Items']
     if len(items) > 0:
-        r = {"status":"account with this email id already exists"}
+        r = {"error":"account with this email id already exists"}
         return r,403
     
     try:
@@ -59,7 +59,7 @@ def signup():
         )
     except Error as e:
         print(e)
-        r = {"status": "error occurred in adding user to db"}
+        r = {"error": "error occurred in adding user to db"}
         return r,500
     
     return request.json,201
@@ -74,7 +74,7 @@ def admin_signup():
     if(re.search(regex, email)):
         print("Valid Email")
     else:
-        r = {"status": "invalid email id"}
+        r = {"error": "invalid email id"}
         return r,400
 
     passwordHashed= request.json["password"]
@@ -88,12 +88,12 @@ def admin_signup():
         )
     except Error as e:
         print(e)
-        r = {"status":"error occured in querying table"}
+        r = {"error":"error occured in querying table"}
         return r,500
     
     items = response['Items']
     if len(items) > 0:
-        r = {"status":"account with this email id already exists"}
+        r = {"error":"account with this email id already exists"}
         return r,403
 
     try:
@@ -109,7 +109,7 @@ def admin_signup():
         )
     except Error as e:
         print(e)
-        r = {"status": "error occurred in adding user to db"}
+        r = {"error": "error occurred in adding user to db"}
         return r,500
 
     # table = dynamodb.Table('UClicker')
@@ -133,7 +133,7 @@ def login():
         )
     except Error as e:
         print(e)
-        r = {"status":"error occured in querying table"}
+        r = {"error":"error occured in querying table"}
         return r,500
     
     items = response['Items']
@@ -147,7 +147,7 @@ def login():
             classes = items[0]['classes']
             r= {"status": "Login sucess","email":email,"admin":admin, "classes":[{"cname": "cs218"}, {"cname": "cs218"}], "name": name}
             return r,200
-        r = {"status": "wrong credentials"}
+        r = {"error": "wrong credentials"}
         return r,401
-    r = {"status": "user not registered"}
+    r = {"error": "user not registered"}
     return r,401
