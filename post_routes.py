@@ -32,11 +32,12 @@ def newClassProf():
     items = response['Items']
     if(items==[]):
             return {"error": "No person found"},404
-    Classes=items[0]["classes"]
     
-    for i in Classes:
-        if i["class_name"] == class_name:
-            return {"error": "Class name already exists. Can't make two classes of same name"},400
+    Classes=items[0]["classes"]
+    if len(Classes) > 0:
+        for i in Classes:
+            if i["class_name"] == class_name:
+                return {"error": "Class name already exists. Can't make two classes of same name"},400
 
     j={
         "class_name":class_name,
