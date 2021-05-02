@@ -62,7 +62,8 @@ Adding new classes as an Admin request POST request (If student emails that do n
         "class":"Biology",
         "start":"08:30:00",
         "end":"10:00:00" ,
-        "students":["e@gmail.com"]
+        "students":["e@gmail.com"],
+        "days": ["Monday","Wednesday"]
     }
 
     response:
@@ -86,7 +87,8 @@ Adding students to an exisiting class as Admin
         "class":"Biology",
         "start":"08:30:00",
         "end":"10:00:00" ,
-        "students":["d@gmail.com"]
+        "students":["d@gmail.com"],
+        "days": ["Monday","Wednesday"]
     }
 
     response:
