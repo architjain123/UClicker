@@ -75,7 +75,9 @@ def newClassProf():
         "start_time":start_time,
         "end_time":end_time,
         "attend":attend,
-        "days": days
+        "days": days,
+        "isAttending": False,
+        "total_class_sessions": 0
         }
         Classes.append(j)
         
@@ -121,7 +123,9 @@ def add_students():
         "start_time":start_time,
         "end_time":end_time,
         "attend":attend,
-        "days":days
+        "days":days,
+        "isAttending": False,
+        "total_class_sessions": 0
         }
         Classes.append(j)
         
@@ -155,9 +159,78 @@ def attendClass():
     for i in classes:
         if(i["class_name"]==class_name):
             i["attend"] = i["attend"]+1
+            i["isAttending"]=True
+
 
     
 
+    response = table.update_item(
+            Key={
+                'email':email,
+                'admin':"false"
+            },
+            UpdateExpression="set classes=:a",
+            ExpressionAttributeValues={
+                ':a': classes
+            },
+            ReturnValues="UPDATED_NEW"
+        
+        )
+    return request.json,200
+
+
+@cross_origin()
+@post_routes_blueprint.route('/not_attending',methods = ['POST'])
+def not_attend():
+    email=request.json["email"]
+    class_name = request.json["class"]
+    table = dynamodb.Table('UClickerAccounts')
+    response = table.query(
+            KeyConditionExpression=Key('email').eq(email)&Key('admin').eq('false')
+    )
+    items = response['Items']
+    if(items==[]):
+        return {"error": "No person found"},404
+    classes=items[0]["classes"]
+    for i in classes:
+        if(i["class_name"]==class_name):
+            i["isAttending"]=False
+
+    
+
+    response = table.update_item(
+            Key={
+                'email':email,
+                'admin':"false"
+            },
+            UpdateExpression="set classes=:a",
+            ExpressionAttributeValues={
+                ':a': classes
+            },
+            ReturnValues="UPDATED_NEW"
+        
+        )
+    return request.json,200
+
+@cross_origin()
+@post_routes_blueprint.route('/add_to_total',methods = ['POST'])
+def add_to_total():
+    email= request.json["email"] 
+    class_name=request.json["class_name"]
+    print(class_name)
+    table = dynamodb.Table('UClickerAccounts')
+    response = table.query(
+            KeyConditionExpression=Key('email').eq(email)&Key('admin').eq('false')
+    )
+    items = response['Items']
+    if(items==[]):
+        return {"error": "No person found"},404
+    classes=items[0]["classes"]
+    for i in classes:
+        if(i["class_name"]==class_name):
+            i["total_class_sessions"]+=1
+            
+                
     response = table.update_item(
             Key={
                 'email':email,

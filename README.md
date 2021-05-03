@@ -128,6 +128,17 @@ Adding attendence to a students record (As of now will always return 200 but won
         "uuid": "a4010f02447892cae1b18c705d59d74a"
     }
 
+
+Adding total attendence to students record
+    http://localhost:8080/add/add_to_total
+    {
+        "email":"e@gmail.com",
+        "class_name":"Spanish"
+    }
+
+
+
+
 Gets a user POST method
     http://localhost:5000/get/user
     {
