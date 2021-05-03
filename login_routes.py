@@ -145,7 +145,7 @@ def login():
             admin = items[0]['admin']
             name = items[0]['name']
             classes = items[0]['classes']
-            r= {"status": "Login sucess","email":email,"admin":admin, "classes":[{"cname": "cs218"}, {"cname": "cs218"}], "name": name}
+            r= {"status": "Login sucess","email":email,"admin":admin, "classes": classes, "name": name}
             return r,200
         r = {"error": "wrong credentials"}
         return r,401
