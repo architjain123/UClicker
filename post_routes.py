@@ -12,6 +12,42 @@ dynamodb = boto3.resource('dynamodb',region_name='us-west-1',
                     aws_access_key_id=KeyManager.getInstance().KEY,
                     aws_secret_access_key=KeyManager.getInstance().SECRETKEY)
 
+
+@post_routes_blueprint.route('/delete_class',methods = ['POST'])
+def delete_class():
+    email=request.json["email"]
+    table = dynamodb.Table('UClickerAccounts')
+    class_name=request.json["class"]
+    response = table.query(
+        KeyConditionExpression=Key('email').eq(email)&Key('admin').eq("true")
+    )
+    items = response['Items']
+    if(items==[]):
+            return {"error": "No person found"},404
+    
+    Classes=items[0]["classes"]
+    new_classes=[]
+    if len(Classes) > 0:
+        for i in Classes:
+            if i["class_name"] != class_name: 
+                new_classes.append(i)
+
+    print(new_classes)
+    response = table.update_item(
+        Key={
+            'email':email,
+            'admin':"true"
+        },
+        UpdateExpression="set classes=:a",
+        ExpressionAttributeValues={
+            ':a': new_classes
+        },
+        ReturnValues="UPDATED_NEW"
+    
+    )
+    return {"delete":class_name},200
+
+    
 @post_routes_blueprint.route('/new_class',methods = ['POST'])
 def add_new_class_prof():
 
