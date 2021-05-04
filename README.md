@@ -53,7 +53,17 @@ Login POST Request
         }
     200
 
+Deleting a class as an admin request POST
+    http://localhost:8080/add/delete_class
+    {
+    "email":"k@gmail.com",
+    "class":"CS222",
+    "students":["e@gmail.com","d@gmail.com","a@gmail.com"]
 
+    }
+    NOTE: You must include the emails of students in the class as well in this request. 
+
+    return an array of new classes after the deletion!
 Adding new classes as an Admin request POST request (If student emails that do not exisit are given it will still make class just it will be empty)
 
     http://localhost:5000/add/new_class

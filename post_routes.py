@@ -20,6 +20,7 @@ def delete_class():
     email=request.json["email"]
     table = dynamodb.Table('UClickerAccounts')
     class_name=request.json["class"]
+    students=request.json['students']
     response = table.query(
         KeyConditionExpression=Key('email').eq(email)&Key('admin').eq("true")
     )
@@ -34,7 +35,6 @@ def delete_class():
             if i["class_name"] != class_name: 
                 new_classes.append(i)
 
-    print(new_classes)
     response = table.update_item(
         Key={
             'email':email,
@@ -47,7 +47,36 @@ def delete_class():
         ReturnValues="UPDATED_NEW"
     
     )
-    return {"delete":class_name},200
+
+
+    for i in students:
+        email = i
+        response = table.query(
+            KeyConditionExpression=Key('email').eq(i)&Key('admin').eq("false")
+        )
+
+
+        items = response['Items']
+        if(items==[]):
+            return {"error": "No matching students found"},404
+        classes=items[0]["classes"]
+        for i in classes:
+            if(i["class_name"] == class_name):
+                classes.remove(i)
+
+        response = table.update_item(
+            Key={
+                'email':email,
+                'admin':"false"
+            },
+            UpdateExpression="set classes=:a",
+            ExpressionAttributeValues={
+                ':a': classes
+            },
+            ReturnValues="UPDATED_NEW"
+        
+        )
+    return json.dumps(new_classes),200
 
     
 @post_routes_blueprint.route('/new_class',methods = ['POST'])
