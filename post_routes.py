@@ -83,7 +83,7 @@ def delete_class():
 def add_new_class_prof():
 
     print(request.data)
-    email=request.json["email"]
+    email=request.json['email']
     table = dynamodb.Table('UClickerAccounts')
     class_name=request.json["class"]
     start_time=request.json["start"]
@@ -111,7 +111,8 @@ def add_new_class_prof():
         "class_name":class_name,
         "start_time":start_time,
         "end_time":end_time,
-        "days": days
+        "days": days,
+        "isActive":False
     }
     Classes.append(j)
     
@@ -145,7 +146,8 @@ def add_new_class_prof():
         "attend":attend,
         "days": days,
         "isAttending": False,
-        "total_class_sessions": 0
+        "total_class_sessions": 0,
+        "isActive":False
         }
         Classes.append(j)
         
@@ -203,7 +205,8 @@ def add_students():
         "attend":attend,
         "days":days,
         "isAttending": False,
-        "total_class_sessions": 0
+        "total_class_sessions": 0,
+        "isActive":False
         }
         Classes.append(j)
         
@@ -254,6 +257,131 @@ def attendClass():
         
         )
     return request.json,200
+
+
+
+
+
+
+@post_routes_blueprint.route('/start_class',methods = ['POST'])
+def startClass():
+    email=request.json["email"]
+    class_name = request.json["class"]
+    table = dynamodb.Table('UClickerAccounts')
+    response = table.query(
+            KeyConditionExpression=Key('email').eq(email)&Key('admin').eq('true')
+    )
+    items = response['Items']
+    if(items==[]):
+        return {"error": "No person found"},404
+    classes=items[0]["classes"]
+    for i in classes:
+        if(i["class_name"]==class_name):
+            i["isActive"] = True
+
+    response = table.update_item(
+            Key={
+                'email':email,
+                'admin':"true"
+            },
+            UpdateExpression="set classes=:a",
+            ExpressionAttributeValues={
+                ':a': classes
+            },
+            ReturnValues="UPDATED_NEW"
+        
+    )
+
+    response = table.scan()
+ 
+    all_elements = response["Items"]
+
+    for i in all_elements:
+        if(i["admin"]=='false'):
+            return_elements = []
+            email=i['email']
+            c = i["classes"]
+            for ind in c:
+                if(i['admin']=="false" and ind['class_name']==class_name):
+                    ind['isActive']=True
+                    return_elements.append(ind)
+            response = table.update_item(
+            Key={
+                'email':email,
+                'admin':"false"
+            },
+            UpdateExpression="set classes=:a",
+            ExpressionAttributeValues={
+                ':a': return_elements
+            },
+            ReturnValues="UPDATED_NEW"
+        
+            )
+
+    return json.dumps(classes),200
+
+
+
+@post_routes_blueprint.route('/end_class',methods = ['POST'])
+def endClass():
+    email=request.json["email"]
+    class_name = request.json["class"]
+    table = dynamodb.Table('UClickerAccounts')
+    response = table.query(
+            KeyConditionExpression=Key('email').eq(email)&Key('admin').eq('true')
+    )
+    items = response['Items']
+    if(items==[]):
+        return {"error": "No person found"},404
+    classes=items[0]["classes"]
+    for i in classes:
+        if(i["class_name"]==class_name):
+            i["isActive"] = False
+
+    response = table.update_item(
+            Key={
+                'email':email,
+                'admin':"true"
+            },
+            UpdateExpression="set classes=:a",
+            ExpressionAttributeValues={
+                ':a': classes
+            },
+            ReturnValues="UPDATED_NEW"
+        
+    )
+
+    response = table.scan()
+ 
+    all_elements = response["Items"]
+
+    for i in all_elements:
+        if(i["admin"]=='false'):
+            return_elements = []
+            email=i['email']
+            c = i["classes"]
+            for ind in c:
+                if(i['admin']=="false" and ind['class_name']==class_name):
+                    ind['isActive']=False
+                    ind['isAttending']=False
+                    return_elements.append(ind)
+            response = table.update_item(
+            Key={
+                'email':email,
+                'admin':"false"
+            },
+            UpdateExpression="set classes=:a",
+            ExpressionAttributeValues={
+                ':a': return_elements
+            },
+            ReturnValues="UPDATED_NEW"
+        
+            )
+
+    return json.dumps(classes),200
+
+
+
 
 
 @post_routes_blueprint.route('/not_attending',methods = ['POST'])
