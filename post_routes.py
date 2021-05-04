@@ -2,6 +2,8 @@ from flask import Blueprint
 from flask import request
 import boto3
 from flask_cors import CORS, cross_origin
+import simplejson as json
+
 from boto3.dynamodb.conditions import Key
 from utils import KeyManager
 import os
@@ -130,7 +132,18 @@ def add_new_class_prof():
             ReturnValues="UPDATED_NEW"
         
         )
-    return request.json,201
+    response = table.query(
+        KeyConditionExpression=Key('email').eq(email)&Key('admin').eq("true")
+    )
+
+
+    items = response['Items']
+    if(items==[]):
+            return {"error": "No person found"},404
+    
+    Classes=items[0]["classes"]
+
+    return json.dumps(Classes),201
 
 @post_routes_blueprint.route('/add_students',methods = ['POST'])
 def add_students():

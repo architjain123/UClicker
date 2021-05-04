@@ -38,17 +38,17 @@ def get_all_students_class():
         r={"Error":"Not allowed to add classes"}
         return 403
     class_name=request.json["class"]
-    start_time=request.json["start"]
-    end_time=request.json["end"]
-
+    
     response = table.scan()
  
     all_elements = response["Items"]
     return_elements = []
     for i in all_elements:
-        c = i["classes"][0]
-        if(i['admin']=="false" and c['start_time']==start_time and c['end_time']==end_time and c['class_name']==class_name):
-            return_elements.append(i)
+        if(i["admin"]=='false'):
+            c = i["classes"]
+            for ind in c:
+                if(i['admin']=="false" and ind['class_name']==class_name):
+                    return_elements.append(i)
     if(return_elements==[]):
         return {"error":"Nothing found with that class"},404
     return json.dumps(return_elements)
