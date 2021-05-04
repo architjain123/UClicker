@@ -12,9 +12,10 @@ dynamodb = boto3.resource('dynamodb',region_name='us-west-1',
                     aws_access_key_id=KeyManager.getInstance().KEY,
                     aws_secret_access_key=KeyManager.getInstance().SECRETKEY)
 
-@cross_origin()
 @post_routes_blueprint.route('/new_class',methods = ['POST'])
-def newClassProf():
+def add_new_class_prof():
+
+    print(request.data)
     email=request.json["email"]
     table = dynamodb.Table('UClickerAccounts')
     class_name=request.json["class"]
@@ -95,7 +96,6 @@ def newClassProf():
         )
     return request.json,201
 
-@cross_origin()
 @post_routes_blueprint.route('/add_students',methods = ['POST'])
 def add_students():
     email=request.json["email"]
@@ -143,7 +143,6 @@ def add_students():
         )
     return request.json,200
 
-@cross_origin()
 @post_routes_blueprint.route('/attend',methods = ['POST'])
 def attendClass():
     email=request.json["email"]
@@ -179,7 +178,6 @@ def attendClass():
     return request.json,200
 
 
-@cross_origin()
 @post_routes_blueprint.route('/not_attending',methods = ['POST'])
 def not_attend():
     email=request.json["email"]
@@ -212,7 +210,6 @@ def not_attend():
         )
     return request.json,200
 
-@cross_origin()
 @post_routes_blueprint.route('/add_to_total',methods = ['POST'])
 def add_to_total():
     email= request.json["email"] 

@@ -11,7 +11,6 @@ dynamodb = boto3.resource('dynamodb', region_name='us-west-1',
                     aws_access_key_id=KeyManager.getInstance().KEY,
                     aws_secret_access_key=KeyManager.getInstance().SECRETKEY)
 
-@cross_origin()
 @get_routes_blueprint.route('/user',methods = ['POST'])
 def getUser():
     email= request.json["email"]
@@ -27,7 +26,6 @@ def getUser():
     items = response['Items']
     return json.dumps(items[0]),200
 
-@cross_origin()
 @get_routes_blueprint.route('/all_students_class',methods = ['POST'])
 def get_all_students_class():
     email=request.json["email"]
@@ -55,7 +53,6 @@ def get_all_students_class():
         return {"error":"Nothing found with that class"},404
     return json.dumps(return_elements)
 
-@cross_origin()
 @get_routes_blueprint.route('/all_students',methods = ['GET'])
 def get_all_students():
     
@@ -72,7 +69,6 @@ def get_all_students():
 
 
 
-@cross_origin()
 @get_routes_blueprint.route('/health_check',methods = ['GET'])
 def health():
     return {"Health_check": "Im all good for now"},200
