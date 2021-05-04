@@ -63,8 +63,6 @@ def get_all_students():
     for i in all_elements:
         if(i['admin']=="false" ):
             return_elements.append(i)
-    if(return_elements==[]):
-        return {"error":"Nothing found with that class"},404
     return json.dumps(return_elements)
 
 

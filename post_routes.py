@@ -278,6 +278,8 @@ def startClass():
     for i in classes:
         if(i["class_name"]==class_name):
             i["isActive"] = True
+            
+            
 
     response = table.update_item(
             Key={
@@ -304,6 +306,9 @@ def startClass():
             for ind in c:
                 if(i['admin']=="false" and ind['class_name']==class_name):
                     ind['isActive']=True
+                    ind['total_class_sessions']+=1
+                    return_elements.append(ind)
+                else:
                     return_elements.append(ind)
             response = table.update_item(
             Key={
@@ -337,7 +342,6 @@ def endClass():
     for i in classes:
         if(i["class_name"]==class_name):
             i["isActive"] = False
-
     response = table.update_item(
             Key={
                 'email':email,
@@ -364,6 +368,8 @@ def endClass():
                 if(i['admin']=="false" and ind['class_name']==class_name):
                     ind['isActive']=False
                     ind['isAttending']=False
+                    return_elements.append(ind)
+                else:
                     return_elements.append(ind)
             response = table.update_item(
             Key={
